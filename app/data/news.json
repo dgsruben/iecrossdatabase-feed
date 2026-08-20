@@ -1,0 +1,100 @@
+{
+  "updated": "2026-08-20",
+  "updatedLabel": "20 AGO 2026",
+  "nextUpdate": {
+    "target": "2026-08-21T02:00:00.000Z",
+    "dateLabel": "21 AGO 2026",
+    "timeLabel": "11:00 JST",
+    "timezones": [
+      {
+        "city": "Madrid",
+        "time": "21 AGO · 04:00",
+        "zone": "CEST"
+      },
+      {
+        "city": "Buenos Aires",
+        "time": "20 AGO · 23:00",
+        "zone": "ART"
+      },
+      {
+        "city": "Ciudad de México",
+        "time": "20 AGO · 20:00",
+        "zone": "CST"
+      },
+      {
+        "city": "Perú",
+        "time": "20 AGO · 21:00",
+        "zone": "PET"
+      }
+    ],
+    "title": "Festival de Oden Juvenil",
+    "summary": "La actualización de datos dará paso al Festival de Oden Juvenil.",
+    "image": "/news/official-35659.jpg"
+  },
+  "items": [
+    {
+      "sourceId": "official-35669",
+      "sourceUrl": "https://www.inazuma-cross.jp/information/news/35669/",
+      "date": "20 AGO 2026",
+      "secondaryImage": null,
+      "id": "raimon-natsumi-gacha-35669",
+      "label": "NUEVO GACHA",
+      "title": "Raimon Natsumi protagoniza un nuevo gacha",
+      "summary": "Se ha anunciado un nuevo gacha protagonizado por Raimon Natsumi, disponible desde el 21 de agosto.",
+      "details": [
+        "Raimon Natsumi",
+        "Gacha destacado",
+        "Disponible el 21 AGO"
+      ],
+      "image": "/news/official-35669.jpg"
+    },
+    {
+      "sourceId": "official-35662",
+      "sourceUrl": "https://www.inazuma-cross.jp/information/news/35662/",
+      "date": "20 AGO 2026",
+      "secondaryImage": null,
+      "id": "kino-aki-gacha-35662",
+      "label": "NUEVO GACHA",
+      "title": "Kino Aki protagoniza un nuevo gacha",
+      "summary": "Se ha anunciado un nuevo gacha protagonizado por Kino Aki, disponible desde el 21 de agosto.",
+      "details": [
+        "Kino Aki",
+        "Gacha destacado",
+        "Disponible el 21 AGO"
+      ],
+      "image": "/news/official-35662.jpg"
+    },
+    {
+      "sourceId": "official-35665",
+      "sourceUrl": "https://www.inazuma-cross.jp/information/news/35665/",
+      "date": "20 AGO 2026",
+      "secondaryImage": null,
+      "id": "otonashi-haruna-gacha-35665",
+      "label": "NUEVO GACHA",
+      "title": "Otonashi Haruna protagoniza un nuevo gacha",
+      "summary": "Se ha anunciado un nuevo gacha protagonizado por Otonashi Haruna, disponible desde el 21 de agosto.",
+      "details": [
+        "Otonashi Haruna",
+        "Gacha destacado",
+        "Disponible el 21 AGO"
+      ],
+      "image": "/news/official-35665.jpg"
+    },
+    {
+      "sourceId": "official-35659",
+      "sourceUrl": "https://www.inazuma-cross.jp/information/news/35659/",
+      "date": "19 AGO 2026",
+      "secondaryImage": null,
+      "id": "festival-oden-juvenil-35659",
+      "label": "NUEVO EVENTO",
+      "title": "Festival de Oden Juvenil",
+      "summary": "Llega un nuevo evento con fases exclusivas, panel de conexiones y recompensas especiales desde el 21 de agosto.",
+      "details": [
+        "Evento temporal",
+        "Nuevas fases",
+        "Comienza el 21 AGO"
+      ],
+      "image": "/news/official-35659.jpg"
+    }
+  ]
+}

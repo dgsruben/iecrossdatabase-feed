@@ -1,0 +1,41 @@
+name: Actualizar noticias de IE Cross
+
+on:
+  schedule:
+    - cron: "17 */12 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ie-cross-news-feed
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el feed
+        uses: actions/checkout@v4
+
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Detectar anuncios oficiales
+        run: node scripts/sync_official_news.mjs
+
+      - name: Publicar solo si hay novedades
+        shell: bash
+        run: |
+          if git diff --quiet -- app/data/news.json public/news; then
+            echo "No hay anuncios nuevos."
+            exit 0
+          fi
+          git config user.name "IE Cross News Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add app/data/news.json public/news
+          git commit -m "Actualizar noticias de IE Cross"
+          git push
