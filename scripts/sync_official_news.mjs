@@ -40,6 +40,39 @@ const playerNames = [
   ["フェイ", "Fei Rune"],
 ];
 
+const featuredGachaProfiles = {
+  "Kino Aki": {
+    playerId: "1166",
+    title: "Kino Aki · Gerente ★3",
+    summary: "Nueva portera de Montaña centrada en potenciar su propia parada y responder cuando falla un bloqueo de tiro aliado.",
+    details: ["GK · Montaña · ★★★", "Despeje de fuego", "Mano celestial"],
+    image: "/news/x-kino-aki-gacha-2026-08-21.webp",
+  },
+  "Otonashi Haruna": {
+    playerId: "1167",
+    title: "Otonashi Haruna · Gerente ★3",
+    summary: "Nueva centrocampista de Viento que encadena regates para debilitar el tiro rival y refuerza el regate de los MF aliados.",
+    details: ["MF · Viento · ★★★", "Espejismo de balón", "Campo de fuerza"],
+    image: "/news/x-otonashi-haruna-gacha-2026-08-21.webp",
+  },
+  "Raimon Natsumi": {
+    playerId: "1168",
+    title: "Raimon Natsumi · Gerente ★3",
+    summary: "Nueva delantera de Fuego que aumenta el Tiro de los FW al usar sus técnicas y castiga el Bloqueo de los DF rivales.",
+    details: ["FW · Fuego · ★★★", "Tiro fantasma", "Lecho de rosas"],
+    image: "/news/x-raimon-natsumi-gacha-2026-08-21.webp",
+  },
+};
+
+const featuredGachaSourceNames = {
+  "35520": "Kino Aki",
+  "35662": "Kino Aki",
+  "35521": "Otonashi Haruna",
+  "35665": "Otonashi Haruna",
+  "35522": "Raimon Natsumi",
+  "35669": "Raimon Natsumi",
+};
+
 function decodeXml(value = "") {
   return value
     .replace(/^<!\[CDATA\[|\]\]>$/g, "")
@@ -188,16 +221,19 @@ function spanishCard(item) {
   };
 
   if (item.title.includes("ピックアップガチャ") || item.title.includes("ガチャ")) {
-    const featured = names[0];
+    const featured = featuredGachaSourceNames[item.sourceId] ?? names[0];
+    const profile = featuredGachaProfiles[featured];
     return {
       ...common,
       id: `${featured ? slugify(featured) : "nuevo"}-gacha-${item.sourceId}`,
-      label: "NUEVO GACHA",
-      title: featured ? `${featured} protagoniza un nuevo gacha` : "Nuevo gacha destacado",
-      summary: featured
-        ? `Se ha anunciado un nuevo gacha protagonizado por ${featured}${startsAt ? `, disponible desde el ${writtenAvailability}` : ""}.`
-        : `Se ha anunciado un nuevo gacha destacado${startsAt ? ` para el ${writtenAvailability}` : ""}.`,
-      details: [...names.slice(0, 2), "Gacha destacado", startsAt ? `Disponible el ${availability}` : "Fecha por confirmar"],
+      playerId: profile?.playerId ?? null,
+      label: "GACHA ACTIVO",
+      title: profile?.title ?? (featured ? `${featured} · Gacha destacado` : "Gacha destacado"),
+      summary: profile?.summary ?? (featured
+        ? `Gacha activo protagonizado por ${featured}${startsAt ? ` desde el ${writtenAvailability}` : ""}.`
+        : `Hay un gacha destacado activo${startsAt ? ` desde el ${writtenAvailability}` : ""}.`),
+      details: profile?.details ?? [...names.slice(0, 2), "Gacha destacado", startsAt ? `Disponible el ${availability}` : "Fecha por confirmar"],
+      image: profile?.image,
       imageUrl: item.imageUrl,
     };
   }
@@ -352,20 +388,25 @@ const officialItems = officialFeed?.items.filter((item) =>
   && !item.title.includes("不具合")
 ) ?? [];
 const aimingItems = aimingFeed?.items.filter((item) => item.categories.includes("イナズマイレブン クロス")) ?? [];
-const relevantItems = officialItems.length >= 4 ? officialItems : [...officialItems, ...aimingItems];
-const latestItems = relevantItems.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime()).slice(0, 4);
+const relevantItems = officialItems.length >= 3 ? officialItems : [...officialItems, ...aimingItems];
+const latestItems = relevantItems
+  .filter((item) => item.title.includes("ピックアップガチャ") || item.title.includes("ガチャ"))
+  .sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime())
+  .slice(0, 3);
 
-if (latestItems.length < 4) {
-  throw new Error(`Solo se detectaron ${latestItems.length} noticias oficiales; se conservan los datos actuales para evitar publicar una portada incompleta.`);
+if (latestItems.length < 3) {
+  throw new Error(`Solo se detectaron ${latestItems.length} gachas activos; se conservan los datos actuales para evitar publicar una portada incompleta.`);
 }
 
 const cards = [];
 for (const item of latestItems) {
   const card = spanishCard(item);
-  card.image = await downloadImage(card);
+  card.image = card.image ?? await downloadImage(card);
   delete card.imageUrl;
   cards.push(card);
 }
+const featuredOrder = new Map([["1166", 0], ["1167", 1], ["1168", 2]]);
+cards.sort((a, b) => (featuredOrder.get(a.playerId) ?? 99) - (featuredOrder.get(b.playerId) ?? 99));
 
 const allOfficialCards = officialItems.map(spanishCard);
 
@@ -408,4 +449,4 @@ for (const filename of await readdir(mediaDirectory)) {
   }
 }
 
-console.log(`Portada actualizada con ${cards.length} anuncios oficiales. Próxima actualización: ${nextNews.nextUpdate?.dateLabel ?? "sin fecha anunciada"}.`);
+console.log(`Portada actualizada con ${cards.length} gachas activos. Próxima actualización: ${nextNews.nextUpdate?.dateLabel ?? "sin fecha anunciada"}.`);
