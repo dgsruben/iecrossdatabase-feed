@@ -1,36 +1,7 @@
 {
   "updated": "2026-08-20",
   "updatedLabel": "20 AGO 2026",
-  "nextUpdate": {
-    "target": "2026-08-21T02:00:00.000Z",
-    "dateLabel": "21 AGO 2026",
-    "timeLabel": "11:00 JST",
-    "timezones": [
-      {
-        "city": "Madrid",
-        "time": "21 AGO · 04:00",
-        "zone": "CEST"
-      },
-      {
-        "city": "Buenos Aires",
-        "time": "20 AGO · 23:00",
-        "zone": "ART"
-      },
-      {
-        "city": "Ciudad de México",
-        "time": "20 AGO · 20:00",
-        "zone": "CST"
-      },
-      {
-        "city": "Perú",
-        "time": "20 AGO · 21:00",
-        "zone": "PET"
-      }
-    ],
-    "title": "Festival de Oden Juvenil",
-    "summary": "La actualización de datos dará paso al Festival de Oden Juvenil.",
-    "image": "/news/official-35659.jpg"
-  },
+  "nextUpdate": null,
   "items": [
     {
       "sourceId": "official-35669",
