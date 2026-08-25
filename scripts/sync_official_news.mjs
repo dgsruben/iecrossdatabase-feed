@@ -426,6 +426,8 @@ function buildCalendar(items, cards, now) {
   });
   const eventCard = event ? cards.find((card) => card.sourceId === `${event.source}-${event.sourceId}`) : null;
   const updateCard = cards.find((card) => card.sourceId === `${update.item.source}-${update.item.sourceId}`);
+  const version130Card = cards.find((card) => card.id.startsWith("version-1-3-0-"));
+  const isVersion130Update = update.item.sourceId === "35728" && Boolean(version130Card);
   const targetParts = new Intl.DateTimeFormat("en-GB", {
     timeZone: "Asia/Tokyo",
     day: "2-digit",
@@ -442,15 +444,17 @@ function buildCalendar(items, cards, now) {
     dateLabel: `${part("day")} ${monthNames[Number(part("month")) - 1]} ${part("year")}`,
     timeLabel: `${part("hour")}:${part("minute")} JST${update.estimated ? " · estimada" : ""}`,
     timezones: calendarZones.map((zone) => localizedTime(update.target, zone)),
-    title: updateCard?.title ?? eventCard?.title ?? "Próxima actualización",
-    summary: updateCard
+    title: isVersion130Update ? "Actualización 1.3.0" : updateCard?.title ?? eventCard?.title ?? "Próxima actualización",
+    summary: isVersion130Update
+      ? "La versión 1.3.0 añadirá las fases 481–800 al Cross Simulator, elevará el nivel máximo de 340 a 440, permitirá guardar cinco formaciones e integrará parcialmente algunos mundos. La hora oficial aún no se ha anunciado; 05:00 JST es una estimación basada en el horario habitual."
+      : updateCard
       ? `${updateCard.summary} La hora oficial aún no se ha anunciado; 05:00 JST es una estimación basada en el horario habitual.`
       : eventCard
       ? `La actualización de datos dará paso al ${eventCard.title}.`
       : "Hay una nueva actualización de datos anunciada para el juego.",
-    image: updateCard?.image ?? "/brand/ie-cross-database-logo.png",
-    imageUrl: updateCard?.imageUrl ?? eventCard?.imageUrl ?? null,
-    imageSourceId: updateCard?.sourceId ?? eventCard?.sourceId ?? `calendar-${update.item.sourceId}`,
+    image: isVersion130Update ? "/news/version-1-3-0-overview.jpg" : updateCard?.image ?? "/brand/ie-cross-database-logo.png",
+    imageUrl: isVersion130Update ? null : updateCard?.imageUrl ?? eventCard?.imageUrl ?? null,
+    imageSourceId: isVersion130Update ? "version-1-3-0-overview" : updateCard?.sourceId ?? eventCard?.sourceId ?? `calendar-${update.item.sourceId}`,
   };
 }
 
