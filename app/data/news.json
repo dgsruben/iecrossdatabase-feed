@@ -1,58 +1,104 @@
 {
-  "updated": "2026-08-21",
-  "updatedLabel": "21 AGO 2026",
-  "nextUpdate": null,
+  "updated": "2026-08-25",
+  "updatedLabel": "25 AGO 2026",
+  "nextUpdate": {
+    "target": "2026-08-31T20:00:00.000Z",
+    "dateLabel": "01 SEP 2026",
+    "timeLabel": "05:00 JST · estimada",
+    "timezones": [
+      {
+        "city": "Madrid",
+        "time": "31 AGO · 22:00",
+        "zone": "CEST"
+      },
+      {
+        "city": "Buenos Aires",
+        "time": "31 AGO · 17:00",
+        "zone": "ART"
+      },
+      {
+        "city": "Ciudad de México",
+        "time": "31 AGO · 14:00",
+        "zone": "CST"
+      },
+      {
+        "city": "Perú",
+        "time": "31 AGO · 15:00",
+        "zone": "PET"
+      }
+    ],
+    "title": "Integración parcial de mundos",
+    "summary": "Algunos mundos compartirán clubes, emparejamientos, rankings y chat para reunir a más jugadores. La hora oficial aún no se ha anunciado; 05:00 JST es una estimación basada en el horario habitual.",
+    "image": "/brand/ie-cross-database-logo.png"
+  },
   "items": [
     {
-      "sourceId": "official-35520",
-      "sourceUrl": "https://www.inazuma-cross.jp/information/news/35520/",
-      "date": "21 AGO 2026",
+      "sourceUrl": "https://www.inazuma-cross.jp/information/important/35728/",
+      "date": "25 AGO 2026",
       "secondaryImage": null,
-      "id": "kino-aki-gacha-35520",
-      "playerId": "1166",
-      "label": "GACHA ACTIVO",
-      "title": "Kino Aki · Gerente ★3",
-      "summary": "Nueva portera de Montaña centrada en potenciar su propia parada y responder cuando falla un bloqueo de tiro aliado.",
+      "playerId": null,
+      "sourceId": "official-35728",
+      "id": "integracion-de-mundos-35728",
+      "label": "1 DE SEPTIEMBRE",
+      "title": "Integración parcial de mundos",
+      "summary": "Algunos mundos compartirán clubes, emparejamientos, rankings y chat para reunir a más jugadores.",
       "details": [
-        "GK · Montaña · ★★★",
-        "Despeje de fuego",
-        "Mano celestial"
+        "Clubes compartidos",
+        "Emparejamiento ampliado",
+        "Rankings y chat mundial"
       ],
-      "image": "/news/x-kino-aki-gacha-2026-08-21.webp"
+      "image": "/brand/ie-cross-database-logo.png"
     },
     {
-      "sourceId": "official-35521",
-      "sourceUrl": "https://www.inazuma-cross.jp/information/news/35521/",
-      "date": "21 AGO 2026",
+      "sourceUrl": "https://www.inazuma-cross.jp/information/news/35725/",
+      "date": "25 AGO 2026",
       "secondaryImage": null,
-      "id": "otonashi-haruna-gacha-35521",
-      "playerId": "1167",
-      "label": "GACHA ACTIVO",
-      "title": "Otonashi Haruna · Gerente ★3",
-      "summary": "Nueva centrocampista de Viento que encadena regates para debilitar el tiro rival y refuerza el regate de los MF aliados.",
+      "playerId": null,
+      "sourceId": "official-35725-simulator",
+      "id": "version-1-3-0-simulator-35725",
+      "label": "VERSIÓN 1.3.0",
+      "title": "Simulador: fases 481–800",
+      "summary": "El Cross Simulator ampliará su recorrido con las fases 481 a 800 y nuevas recompensas por completar.",
       "details": [
-        "MF · Viento · ★★★",
-        "Espejismo de balón",
-        "Campo de fuerza"
+        "Fases 481–800",
+        "Nuevas recompensas",
+        "Próxima actualización"
       ],
-      "image": "/news/x-otonashi-haruna-gacha-2026-08-21.webp"
+      "image": "/news/official-35725-simulator.jpg"
     },
     {
-      "sourceId": "official-35522",
-      "sourceUrl": "https://www.inazuma-cross.jp/information/news/35522/",
-      "date": "21 AGO 2026",
+      "sourceUrl": "https://www.inazuma-cross.jp/information/news/35725/",
+      "date": "25 AGO 2026",
       "secondaryImage": null,
-      "id": "raimon-natsumi-gacha-35522",
-      "playerId": "1168",
-      "label": "GACHA ACTIVO",
-      "title": "Raimon Natsumi · Gerente ★3",
-      "summary": "Nueva delantera de Fuego que aumenta el Tiro de los FW al usar sus técnicas y castiga el Bloqueo de los DF rivales.",
+      "playerId": null,
+      "sourceId": "official-35725-level",
+      "id": "version-1-3-0-level-35725",
+      "label": "NUEVO LÍMITE",
+      "title": "Nivel máximo: 440",
+      "summary": "El límite del nivel Cross subirá de 340 a 440 para seguir mejorando jugadores y la potencia total del equipo.",
       "details": [
-        "FW · Fuego · ★★★",
-        "Tiro fantasma",
-        "Lecho de rosas"
+        "Nivel 340 → 440",
+        "Más progresión",
+        "Mayor potencia total"
       ],
-      "image": "/news/x-raimon-natsumi-gacha-2026-08-21.webp"
+      "image": "/news/official-35725-level.jpg"
+    },
+    {
+      "sourceUrl": "https://www.inazuma-cross.jp/information/news/35725/",
+      "date": "25 AGO 2026",
+      "secondaryImage": null,
+      "playerId": null,
+      "sourceId": "official-35725-formations",
+      "id": "version-1-3-0-formations-35725",
+      "label": "FORMACIONES",
+      "title": "Cinco equipos guardados",
+      "summary": "Será posible guardar hasta cinco alineaciones de once jugadores por contenido y alternarlas con un solo toque.",
+      "details": [
+        "Hasta 5 equipos",
+        "Cambio con un toque",
+        "Disponible según el contenido"
+      ],
+      "image": "/news/official-35725-formations.jpg"
     }
   ]
 }

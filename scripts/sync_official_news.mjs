@@ -111,13 +111,21 @@ function absoluteUrl(value, baseUrl) {
   }
 }
 
+function imageUrlsIn(content, baseUrl) {
+  return [...new Set(
+    [...content.matchAll(/<img\b[^>]*\bsrc=["']([^"']+)["']/gi)]
+      .map((match) => absoluteUrl(match[1], baseUrl))
+      .filter(Boolean),
+  )];
+}
+
 function parseFeed(xml, source, baseUrl) {
   const channel = tagValue(xml, "channel") || xml;
   const lastBuildDate = tagValue(channel, "lastBuildDate");
   const items = [...xml.matchAll(/<item>([\s\S]*?)<\/item>/gi)].map((match) => {
     const item = match[1];
     const content = tagValue(item, "content:encoded");
-    const imageMatch = content.match(/<img\b[^>]*\bsrc=["']([^"']+)["']/i);
+    const imageUrls = imageUrlsIn(content, baseUrl);
     const guid = tagValue(item, "guid");
     return {
       source,
@@ -128,7 +136,8 @@ function parseFeed(xml, source, baseUrl) {
       categories: tagValues(item, "category").map(plainText),
       description: plainText(tagValue(item, "description")),
       content,
-      imageUrl: absoluteUrl(imageMatch?.[1], baseUrl),
+      imageUrl: imageUrls[0] ?? null,
+      imageUrls,
     };
   }).filter((item) => item.title && !Number.isNaN(item.publishedAt.getTime()));
 
@@ -175,14 +184,18 @@ function namesIn(text) {
   return found;
 }
 
-function parseJstDate(text, referenceDate) {
-  const match = text.match(/(\d{1,2})\/(\d{1,2})(?:\([^)]*\))?\s*(\d{1,2}):(\d{2})/u);
+function parseJstDate(text, referenceDate, fallbackHour = null) {
+  const exactMatch = text.match(/(\d{1,2})\/(\d{1,2})(?:\([^)]*\))?\s*(\d{1,2}):(\d{2})/u);
+  const dateOnlyMatch = fallbackHour === null ? null : text.match(/(\d{1,2})\/(\d{1,2})(?:\([^)]*\))?/u);
+  const match = exactMatch ?? dateOnlyMatch;
   if (!match) return null;
+  const hour = exactMatch ? Number(match[3]) : fallbackHour;
+  const minute = exactMatch ? Number(match[4]) : 0;
   let year = referenceDate.getUTCFullYear();
-  let target = new Date(Date.UTC(year, Number(match[1]) - 1, Number(match[2]), Number(match[3]) - 9, Number(match[4])));
+  let target = new Date(Date.UTC(year, Number(match[1]) - 1, Number(match[2]), hour - 9, minute));
   if (target.getTime() < referenceDate.getTime() - 180 * 86_400_000) {
     year += 1;
-    target = new Date(Date.UTC(year, Number(match[1]) - 1, Number(match[2]), Number(match[3]) - 9, Number(match[4])));
+    target = new Date(Date.UTC(year, Number(match[1]) - 1, Number(match[2]), hour - 9, minute));
   }
   return target;
 }
@@ -297,6 +310,65 @@ function spanishCard(item) {
   };
 }
 
+function spanishCards(item) {
+  const common = {
+    sourceUrl: item.link,
+    date: dateLabel(item.publishedAt),
+    secondaryImage: null,
+    playerId: null,
+  };
+
+  if (item.title.includes("バージョン1.3.0")) {
+    return [
+      {
+        ...common,
+        sourceId: `${item.source}-${item.sourceId}-simulator`,
+        id: `version-1-3-0-simulator-${item.sourceId}`,
+        label: "VERSIÓN 1.3.0",
+        title: "Simulador: fases 481–800",
+        summary: "El Cross Simulator ampliará su recorrido con las fases 481 a 800 y nuevas recompensas por completar.",
+        details: ["Fases 481–800", "Nuevas recompensas", "Próxima actualización"],
+        imageUrl: item.imageUrls[0] ?? item.imageUrl,
+      },
+      {
+        ...common,
+        sourceId: `${item.source}-${item.sourceId}-level`,
+        id: `version-1-3-0-level-${item.sourceId}`,
+        label: "NUEVO LÍMITE",
+        title: "Nivel máximo: 440",
+        summary: "El límite del nivel Cross subirá de 340 a 440 para seguir mejorando jugadores y la potencia total del equipo.",
+        details: ["Nivel 340 → 440", "Más progresión", "Mayor potencia total"],
+        imageUrl: item.imageUrls[1] ?? item.imageUrl,
+      },
+      {
+        ...common,
+        sourceId: `${item.source}-${item.sourceId}-formations`,
+        id: `version-1-3-0-formations-${item.sourceId}`,
+        label: "FORMACIONES",
+        title: "Cinco equipos guardados",
+        summary: "Será posible guardar hasta cinco alineaciones de once jugadores por contenido y alternarlas con un solo toque.",
+        details: ["Hasta 5 equipos", "Cambio con un toque", "Disponible según el contenido"],
+        imageUrl: item.imageUrls[2] ?? item.imageUrl,
+      },
+    ];
+  }
+
+  if (item.title.includes("ワールド") && item.title.includes("統合")) {
+    return [{
+      ...common,
+      sourceId: `${item.source}-${item.sourceId}`,
+      id: `integracion-de-mundos-${item.sourceId}`,
+      label: "1 DE SEPTIEMBRE",
+      title: "Integración parcial de mundos",
+      summary: "Algunos mundos compartirán clubes, emparejamientos, rankings y chat para reunir a más jugadores.",
+      details: ["Clubes compartidos", "Emparejamiento ampliado", "Rankings y chat mundial"],
+      image: "/brand/ie-cross-database-logo.png",
+    }];
+  }
+
+  return [spanishCard(item)];
+}
+
 function localizedTime(target, { city, timeZone, label }) {
   const parts = new Intl.DateTimeFormat("es-ES", {
     timeZone,
@@ -318,7 +390,9 @@ function localizedTime(target, { city, timeZone, label }) {
 async function downloadImage(card) {
   if (!card.imageUrl) return "/brand/ie-cross-database-logo.png";
   const response = await fetch(card.imageUrl, {
-    headers: { "User-Agent": "IECrossDatabase-NewsBot/1.0 (+https://iecrossdatabase.pages.dev/)" },
+    headers: {
+      "User-Agent": "IECrossDatabase-NewsBot/1.0 (+https://iecrossdatabase.pages.dev/)",
+    },
     signal: AbortSignal.timeout(20_000),
   });
   if (!response.ok) throw new Error(`No se pudo descargar la imagen de ${card.sourceUrl ?? card.sourceId}.`);
@@ -332,8 +406,14 @@ async function downloadImage(card) {
 
 function buildCalendar(items, cards, now) {
   const updates = items
-    .filter((item) => item.title.includes("データ更新") || item.title.includes("メンテナンス"))
-    .map((item) => ({ item, target: parseJstDate(`${item.title} ${plainText(item.content)}`, item.publishedAt) }))
+    .map((item) => {
+      const text = `${item.title} ${plainText(item.content)}`;
+      const isMaintenance = item.title.includes("データ更新") || text.includes("メンテナンス");
+      if (!isMaintenance) return null;
+      const exactTime = /(\d{1,2})\/(\d{1,2})(?:\([^)]*\))?\s*(\d{1,2}):(\d{2})/u.test(text);
+      return { item, target: parseJstDate(text, item.publishedAt, 5), estimated: !exactTime };
+    })
+    .filter(Boolean)
     .filter(({ target }) => target && target.getTime() > now.getTime())
     .sort((a, b) => a.target.getTime() - b.target.getTime());
   const update = updates[0];
@@ -345,6 +425,7 @@ function buildCalendar(items, cards, now) {
     return eventTarget && Math.abs(eventTarget.getTime() - update.target.getTime()) < 6 * 3_600_000;
   });
   const eventCard = event ? cards.find((card) => card.sourceId === `${event.source}-${event.sourceId}`) : null;
+  const updateCard = cards.find((card) => card.sourceId === `${update.item.source}-${update.item.sourceId}`);
   const targetParts = new Intl.DateTimeFormat("en-GB", {
     timeZone: "Asia/Tokyo",
     day: "2-digit",
@@ -359,15 +440,17 @@ function buildCalendar(items, cards, now) {
   return {
     target: update.target.toISOString(),
     dateLabel: `${part("day")} ${monthNames[Number(part("month")) - 1]} ${part("year")}`,
-    timeLabel: `${part("hour")}:${part("minute")} JST`,
+    timeLabel: `${part("hour")}:${part("minute")} JST${update.estimated ? " · estimada" : ""}`,
     timezones: calendarZones.map((zone) => localizedTime(update.target, zone)),
-    title: eventCard?.title ?? "Próxima actualización",
-    summary: eventCard
+    title: updateCard?.title ?? eventCard?.title ?? "Próxima actualización",
+    summary: updateCard
+      ? `${updateCard.summary} La hora oficial aún no se ha anunciado; 05:00 JST es una estimación basada en el horario habitual.`
+      : eventCard
       ? `La actualización de datos dará paso al ${eventCard.title}.`
       : "Hay una nueva actualización de datos anunciada para el juego.",
-    image: "/brand/ie-cross-database-logo.png",
-    imageUrl: eventCard?.imageUrl ?? null,
-    imageSourceId: eventCard?.sourceId ?? `calendar-${update.item.sourceId}`,
+    image: updateCard?.image ?? "/brand/ie-cross-database-logo.png",
+    imageUrl: updateCard?.imageUrl ?? eventCard?.imageUrl ?? null,
+    imageSourceId: updateCard?.sourceId ?? eventCard?.sourceId ?? `calendar-${update.item.sourceId}`,
   };
 }
 
@@ -384,33 +467,38 @@ if (!officialFeed && !aimingFeed) {
 }
 
 const officialItems = officialFeed?.items.filter((item) =>
-  item.categories.some((category) => ["お知らせ", "ガチャ", "イベント", "メンテナンス"].includes(category))
+  item.categories.some((category) => ["お知らせ", "重要", "ガチャ", "イベント", "メンテナンス"].includes(category))
   && !item.title.includes("不具合")
 ) ?? [];
 const aimingItems = aimingFeed?.items.filter((item) => item.categories.includes("イナズマイレブン クロス")) ?? [];
-const relevantItems = officialItems.length >= 3 ? officialItems : [...officialItems, ...aimingItems];
+const relevantItems = officialItems.length >= 2 ? officialItems : [...officialItems, ...aimingItems];
 const latestItems = relevantItems
-  .filter((item) => item.title.includes("ピックアップガチャ") || item.title.includes("ガチャ"))
+  .filter((item) => !item.title.includes("終了"))
   .sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime())
-  .slice(0, 3);
-
-if (latestItems.length < 3) {
-  throw new Error(`Solo se detectaron ${latestItems.length} gachas activos; se conservan los datos actuales para evitar publicar una portada incompleta.`);
-}
+  .slice(0, 8);
 
 const cards = [];
+const selectedItems = [];
 for (const item of latestItems) {
-  const card = spanishCard(item);
-  card.image = card.image ?? await downloadImage(card);
-  delete card.imageUrl;
-  cards.push(card);
+  const itemCards = spanishCards(item);
+  if (!itemCards.length) continue;
+  selectedItems.push(item);
+  for (const card of itemCards) {
+    card.image = card.image ?? await downloadImage(card);
+    delete card.imageUrl;
+    cards.push(card);
+    if (cards.length === 4) break;
+  }
+  if (cards.length === 4) break;
 }
-const featuredOrder = new Map([["1166", 0], ["1167", 1], ["1168", 2]]);
-cards.sort((a, b) => (featuredOrder.get(a.playerId) ?? 99) - (featuredOrder.get(b.playerId) ?? 99));
 
-const allOfficialCards = officialItems.map(spanishCard);
+if (cards.length < 2) {
+  throw new Error(`Solo se detectaron ${cards.length} novedades recientes; se conservan los datos actuales para evitar publicar una portada incompleta.`);
+}
 
-const updatedAtCandidates = latestItems.map((item) => item.publishedAt).filter((date) => !Number.isNaN(date.getTime()));
+const allOfficialCards = officialItems.flatMap(spanishCards);
+
+const updatedAtCandidates = selectedItems.map((item) => item.publishedAt).filter((date) => !Number.isNaN(date.getTime()));
 const updatedAt = new Date(Math.max(...updatedAtCandidates.map((date) => date.getTime())));
 const nextUpdate = buildCalendar(officialItems, allOfficialCards, new Date());
 if (nextUpdate?.imageUrl) {
@@ -449,4 +537,4 @@ for (const filename of await readdir(mediaDirectory)) {
   }
 }
 
-console.log(`Portada actualizada con ${cards.length} gachas activos. Próxima actualización: ${nextNews.nextUpdate?.dateLabel ?? "sin fecha anunciada"}.`);
+console.log(`Portada actualizada con ${cards.length} novedades. Próxima actualización: ${nextNews.nextUpdate?.dateLabel ?? "sin fecha anunciada"}.`);
