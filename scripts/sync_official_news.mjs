@@ -73,6 +73,14 @@ const featuredGachaSourceNames = {
   "35669": "Raimon Natsumi",
 };
 
+const activeGachaPlayerIds = {
+  "35520": "1166",
+  "35521": "1167",
+  "35522": "1168",
+  "35438": "4003",
+  "35436": "4009",
+};
+
 function decodeXml(value = "") {
   return value
     .replace(/^<!\[CDATA\[|\]\]>$/g, "")
@@ -156,6 +164,32 @@ async function fetchText(url) {
   return response.text();
 }
 
+async function fetchOfficialHistory() {
+  const pageUrls = Array.from({ length: 8 }, (_, index) => {
+    const url = new URL(officialFeedUrl);
+    if (index > 0) url.searchParams.set("paged", String(index + 1));
+    return url.toString();
+  });
+  const results = await Promise.allSettled(pageUrls.map(async (url) => parseFeed(await fetchText(url), "official", url)));
+  const pages = results.filter((result) => result.status === "fulfilled").map((result) => result.value);
+  if (!pages.length) {
+    const reasons = results
+      .filter((result) => result.status === "rejected")
+      .map((result) => result.reason.message)
+      .join(" · ");
+    throw new Error(reasons || "No se pudo consultar el historial oficial.");
+  }
+
+  const itemsById = new Map();
+  for (const page of pages) {
+    for (const item of page.items) itemsById.set(item.sourceId, item);
+  }
+  return {
+    lastBuildDate: pages.map((page) => page.lastBuildDate).filter(Boolean).sort((a, b) => b.getTime() - a.getTime())[0] ?? null,
+    items: [...itemsById.values()],
+  };
+}
+
 function dateLabel(date) {
   const parts = new Intl.DateTimeFormat("en-GB", {
     timeZone: "Asia/Tokyo",
@@ -198,6 +232,32 @@ function parseJstDate(text, referenceDate, fallbackHour = null) {
     target = new Date(Date.UTC(year, Number(match[1]) - 1, Number(match[2]), hour - 9, minute));
   }
   return target;
+}
+
+function parseGachaEndDate(text, referenceDate) {
+  const match = text.match(/開催期間[\s\S]{0,180}?[～〜]\s*(?:(\d{4})\/)?(\d{1,2})\/(\d{1,2})(?:\([^)]*\))?\s*(\d{1,2}):(\d{2})/u);
+  if (!match) return null;
+  let year = match[1] ? Number(match[1]) : referenceDate.getUTCFullYear();
+  let target = new Date(Date.UTC(year, Number(match[2]) - 1, Number(match[3]), Number(match[4]) - 9, Number(match[5])));
+  if (!match[1] && target.getTime() < referenceDate.getTime() - 180 * 86_400_000) {
+    year += 1;
+    target = new Date(Date.UTC(year, Number(match[2]) - 1, Number(match[3]), Number(match[4]) - 9, Number(match[5])));
+  }
+  return target;
+}
+
+function bannerEndLabel(date) {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Tokyo",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(date);
+  const part = (type) => parts.find((value) => value.type === type)?.value;
+  return `${part("day")} ${monthNames[Number(part("month")) - 1]} ${part("year")} · ${part("hour")}:${part("minute")} JST`;
 }
 
 function shortAvailability(date) {
@@ -404,11 +464,44 @@ async function downloadImage(card) {
   return `/news/${filename}`;
 }
 
+async function buildActiveBanners(items, now) {
+  const banners = items
+    .filter((item) => item.categories.includes("ガチャ"))
+    .filter((item) => item.title.includes("ピックアップガチャ") && !item.title.includes("予告"))
+    .map((item) => {
+      const combinedText = `${item.title} ${plainText(item.content)} ${item.description}`;
+      return { item, title: namesIn(item.title)[0] ?? namesIn(combinedText)[0] ?? null, endsAt: parseGachaEndDate(combinedText, item.publishedAt) };
+    })
+    .filter(({ title, endsAt }) => title && endsAt && endsAt.getTime() > now.getTime())
+    .sort((a, b) => a.endsAt.getTime() - b.endsAt.getTime() || a.title.localeCompare(b.title, "es"));
+
+  const results = [];
+  for (const { item, title, endsAt } of banners) {
+    results.push({
+      id: `banner-${item.sourceId}`,
+      playerId: activeGachaPlayerIds[item.sourceId] ?? null,
+      title,
+      label: "PICK-UP ACTIVO",
+      endsAt: endsAt.toISOString(),
+      endLabel: bannerEndLabel(endsAt),
+      sourceUrl: item.link,
+      image: await downloadImage({
+        imageUrl: item.imageUrl,
+        sourceId: `banner-${item.sourceId}`,
+        sourceUrl: item.link,
+      }),
+    });
+  }
+  return results;
+}
+
 function buildCalendar(items, cards, now) {
   const updates = items
     .map((item) => {
       const text = `${item.title} ${plainText(item.content)}`;
-      const isMaintenance = item.title.includes("データ更新") || text.includes("メンテナンス");
+      const isMaintenance = item.title.includes("データ更新")
+        || item.title.includes("メンテナンス")
+        || (item.title.includes("ワールド") && item.title.includes("統合"));
       if (!isMaintenance) return null;
       const exactTime = /(\d{1,2})\/(\d{1,2})(?:\([^)]*\))?\s*(\d{1,2}):(\d{2})/u.test(text);
       return { item, target: parseJstDate(text, item.publishedAt, 5), estimated: !exactTime };
@@ -460,7 +553,7 @@ function buildCalendar(items, cards, now) {
 
 await mkdir(mediaDirectory, { recursive: true });
 const feeds = await Promise.allSettled([
-  fetchText(officialFeedUrl).then((xml) => parseFeed(xml, "official", officialFeedUrl)),
+  fetchOfficialHistory(),
   fetchText(aimingFeedUrl).then((xml) => parseFeed(xml, "aiming", aimingFeedUrl)),
 ]);
 const officialFeed = feeds[0].status === "fulfilled" ? feeds[0].value : null;
@@ -505,6 +598,7 @@ const allOfficialCards = officialItems.flatMap(spanishCards);
 const updatedAtCandidates = selectedItems.map((item) => item.publishedAt).filter((date) => !Number.isNaN(date.getTime()));
 const updatedAt = new Date(Math.max(...updatedAtCandidates.map((date) => date.getTime())));
 const nextUpdate = buildCalendar(officialItems, allOfficialCards, new Date());
+const activeBanners = await buildActiveBanners(officialItems, new Date());
 if (nextUpdate?.imageUrl) {
   nextUpdate.image = await downloadImage({
     imageUrl: nextUpdate.imageUrl,
@@ -520,6 +614,7 @@ const nextNews = {
   updated: updatedAt.toISOString().slice(0, 10),
   updatedLabel: dateLabel(updatedAt),
   nextUpdate,
+  activeBanners,
   items: cards,
 };
 const nextContents = `${JSON.stringify(nextNews, null, 2)}\n`;
@@ -533,6 +628,7 @@ if (nextContents === previousContents) {
 await writeFile(newsPath, nextContents, "utf8");
 const referencedAssets = new Set([
   ...cards.map((item) => path.basename(item.image)),
+  ...activeBanners.map((item) => path.basename(item.image)),
   nextNews.nextUpdate ? path.basename(nextNews.nextUpdate.image) : null,
 ].filter(Boolean));
 for (const filename of await readdir(mediaDirectory)) {
@@ -541,4 +637,4 @@ for (const filename of await readdir(mediaDirectory)) {
   }
 }
 
-console.log(`Portada actualizada con ${cards.length} novedades. Próxima actualización: ${nextNews.nextUpdate?.dateLabel ?? "sin fecha anunciada"}.`);
+console.log(`Portada actualizada con ${cards.length} novedades y ${activeBanners.length} banners activos. Próxima actualización: ${nextNews.nextUpdate?.dateLabel ?? "sin fecha anunciada"}.`);

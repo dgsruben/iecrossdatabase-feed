@@ -31,6 +31,58 @@
     "summary": "La versión 1.3.0 añadirá las fases 481–800 al Cross Simulator, elevará el nivel máximo de 340 a 440, permitirá guardar cinco formaciones e integrará parcialmente algunos mundos. La hora oficial aún no se ha anunciado; 05:00 JST es una estimación basada en el horario habitual.",
     "image": "/news/version-1-3-0-overview.jpg"
   },
+  "activeBanners": [
+    {
+      "id": "banner-35438",
+      "playerId": "4003",
+      "title": "Kirino Ranmaru",
+      "label": "PICK-UP ACTIVO",
+      "endsAt": "2026-08-31T19:59:00.000Z",
+      "endLabel": "01 SEP 2026 · 04:59 JST",
+      "sourceUrl": "https://www.inazuma-cross.jp/information/news/35438/",
+      "image": "/news/official-banner-35438.jpg"
+    },
+    {
+      "id": "banner-35436",
+      "playerId": "4009",
+      "title": "Shindou Takuto",
+      "label": "PICK-UP ACTIVO",
+      "endsAt": "2026-08-31T19:59:00.000Z",
+      "endLabel": "01 SEP 2026 · 04:59 JST",
+      "sourceUrl": "https://www.inazuma-cross.jp/information/news/35436/",
+      "image": "/news/official-banner-35436.jpg"
+    },
+    {
+      "id": "banner-35520",
+      "playerId": "1166",
+      "title": "Kino Aki",
+      "label": "PICK-UP ACTIVO",
+      "endsAt": "2026-09-14T19:59:00.000Z",
+      "endLabel": "15 SEP 2026 · 04:59 JST",
+      "sourceUrl": "https://www.inazuma-cross.jp/information/news/35520/",
+      "image": "/news/official-banner-35520.jpg"
+    },
+    {
+      "id": "banner-35521",
+      "playerId": "1167",
+      "title": "Otonashi Haruna",
+      "label": "PICK-UP ACTIVO",
+      "endsAt": "2026-09-14T19:59:00.000Z",
+      "endLabel": "15 SEP 2026 · 04:59 JST",
+      "sourceUrl": "https://www.inazuma-cross.jp/information/news/35521/",
+      "image": "/news/official-banner-35521.jpg"
+    },
+    {
+      "id": "banner-35522",
+      "playerId": "1168",
+      "title": "Raimon Natsumi",
+      "label": "PICK-UP ACTIVO",
+      "endsAt": "2026-09-14T19:59:00.000Z",
+      "endLabel": "15 SEP 2026 · 04:59 JST",
+      "sourceUrl": "https://www.inazuma-cross.jp/information/news/35522/",
+      "image": "/news/official-banner-35522.jpg"
+    }
+  ],
   "items": [
     {
       "sourceUrl": "https://www.inazuma-cross.jp/information/important/35728/",
