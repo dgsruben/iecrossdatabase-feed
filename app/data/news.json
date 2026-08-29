@@ -1,35 +1,35 @@
 {
-  "updated": "2026-08-27",
-  "updatedLabel": "27 AGO 2026",
+  "updated": "2026-08-29",
+  "updatedLabel": "29 AGO 2026",
   "nextUpdate": {
-    "target": "2026-08-31T20:00:00.000Z",
+    "target": "2026-08-31T19:55:00.000Z",
     "dateLabel": "01 SEP 2026",
-    "timeLabel": "05:00 JST · estimada",
+    "timeLabel": "04:55 JST",
     "timezones": [
       {
         "city": "Madrid",
-        "time": "31 AGO · 22:00",
+        "time": "31 AGO · 21:55",
         "zone": "CEST"
       },
       {
         "city": "Buenos Aires",
-        "time": "31 AGO · 17:00",
+        "time": "31 AGO · 16:55",
         "zone": "ART"
       },
       {
         "city": "Ciudad de México",
-        "time": "31 AGO · 14:00",
+        "time": "31 AGO · 13:55",
         "zone": "CST"
       },
       {
         "city": "Perú",
-        "time": "31 AGO · 15:00",
+        "time": "31 AGO · 14:55",
         "zone": "PET"
       }
     ],
-    "title": "Actualización 1.3.0",
-    "summary": "La versión 1.3.0 añadirá las fases 481–800 al Cross Simulator, elevará el nivel máximo de 340 a 440, permitirá guardar cinco formaciones e integrará parcialmente algunos mundos. La hora oficial aún no se ha anunciado; 05:00 JST es una estimación basada en el horario habitual.",
-    "image": "/news/version-1-3-0-overview.jpg"
+    "title": "Sakuma Jirou y versión 1.3.0",
+    "summary": "El mantenimiento comenzará a las 04:55 JST y está previsto hasta las 10:00 JST. Al terminar llegará el pickup ★3 de Sakuma Jirou junto con la versión 1.3.0, el cambio de temporada y la integración parcial de mundos.",
+    "image": "/news/official-35747.jpg"
   },
   "activeBanners": [
     {
@@ -85,19 +85,57 @@
   ],
   "items": [
     {
-      "sourceId": "official-35751",
+      "sourceId": "official-35747",
+      "sourceUrl": "https://www.inazuma-cross.jp/information/news/35747/",
+      "date": "29 AGO 2026",
+      "secondaryImage": null,
+      "id": "sakuma-jirou-gacha-35747",
+      "playerId": null,
+      "label": "PRÓXIMO GACHA",
+      "title": "Sakuma Jirou · Artillero Imperial ★3",
+      "summary": "Nuevo delantero de Bosque que llegará tras el mantenimiento del 1 de septiembre. Su repertorio incluye Pingüino emperador n.º 2 y un regate de Fuego de 165 de poder.",
+      "details": [
+        "FW · Bosque · ★★★",
+        "Pingüino emperador n.º 2",
+        "Regate de Fuego · poder 165",
+        "Tras el mantenimiento del 1 SEP"
+      ],
+      "image": "/news/official-35747.jpg"
+    },
+    {
+      "sourceUrl": "https://www.inazuma-cross.jp/information/important/35744/",
+      "date": "29 AGO 2026",
+      "secondaryImage": null,
+      "playerId": null,
+      "sourceId": "official-35744",
+      "id": "mantenimiento-1-septiembre-35744",
+      "label": "MANTENIMIENTO",
+      "title": "Versión 1.3.0 · mantenimiento",
+      "summary": "El mantenimiento del 1 de septiembre preparará la versión 1.3.0, el cambio de temporada, la integración parcial de mundos, correcciones y una actualización de datos.",
+      "details": [
+        "04:55–10:00 JST",
+        "Versión 1.3.0",
+        "Cambio de temporada",
+        "Integración de mundos"
+      ],
+      "image": "/news/version-1-3-0-overview.jpg"
+    },
+    {
       "sourceUrl": "https://www.inazuma-cross.jp/information/important/35751/",
       "date": "27 AGO 2026",
       "secondaryImage": null,
-      "id": "novedad-oficial-35751",
-      "label": "NOVEDAD",
-      "title": "Nueva información del juego",
-      "summary": "Se ha publicado nueva información oficial de Inazuma Eleven Cross.",
+      "playerId": null,
+      "sourceId": "official-35751",
+      "id": "correccion-pasivas-35751",
+      "label": "CORRECCIÓN",
+      "title": "Diez pasivas se corregirán el 1 de septiembre",
+      "summary": "El juego alineará el texto y el efecto real de diez pasivas afectadas; entre ellas las de Ootani Tsukushi, Nishigaki Mamoru y Onigawara Gengorou. También se estudia una compensación.",
       "details": [
-        "Anuncio oficial",
-        "Información del juego"
+        "10 jugadores afectados",
+        "Texto y efecto corregidos",
+        "Compensación en estudio"
       ],
-      "image": "/brand/ie-cross-database-logo.png"
+      "image": "/news/version-1-3-0-overview.jpg"
     },
     {
       "sourceUrl": "https://www.inazuma-cross.jp/information/important/35728/",
@@ -114,41 +152,7 @@
         "Emparejamiento ampliado",
         "Rankings y chat mundial"
       ],
-      "image": "/brand/ie-cross-database-logo.png"
-    },
-    {
-      "sourceUrl": "https://www.inazuma-cross.jp/information/news/35725/",
-      "date": "25 AGO 2026",
-      "secondaryImage": null,
-      "playerId": null,
-      "sourceId": "official-35725-simulator",
-      "id": "version-1-3-0-simulator-35725",
-      "label": "VERSIÓN 1.3.0",
-      "title": "Simulador: fases 481–800",
-      "summary": "El Cross Simulator ampliará su recorrido con las fases 481 a 800 y nuevas recompensas por completar.",
-      "details": [
-        "Fases 481–800",
-        "Nuevas recompensas",
-        "Próxima actualización"
-      ],
-      "image": "/news/official-35725-simulator.jpg"
-    },
-    {
-      "sourceUrl": "https://www.inazuma-cross.jp/information/news/35725/",
-      "date": "25 AGO 2026",
-      "secondaryImage": null,
-      "playerId": null,
-      "sourceId": "official-35725-level",
-      "id": "version-1-3-0-level-35725",
-      "label": "NUEVO LÍMITE",
-      "title": "Nivel máximo: 440",
-      "summary": "El límite del nivel Cross subirá de 340 a 440 para seguir mejorando jugadores y la potencia total del equipo.",
-      "details": [
-        "Nivel 340 → 440",
-        "Más progresión",
-        "Mayor potencia total"
-      ],
-      "image": "/news/official-35725-level.jpg"
+      "image": "/news/version-1-3-0-overview.jpg"
     }
   ]
 }

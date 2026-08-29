@@ -1,4 +1,4 @@
-import { mkdir, readFile, readdir, unlink, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -38,6 +38,8 @@ const playerNames = [
   ["豪炎寺", "Gouenji Shuuya"],
   ["黄名子", "Nanobana Kinako"],
   ["フェイ", "Fei Rune"],
+  ["佐久間 次郎", "Sakuma Jirou"],
+  ["佐久間次郎", "Sakuma Jirou"],
 ];
 
 const featuredGachaProfiles = {
@@ -62,6 +64,13 @@ const featuredGachaProfiles = {
     details: ["FW · Fuego · ★★★", "Tiro fantasma", "Lecho de rosas"],
     image: "/news/x-raimon-natsumi-gacha-2026-08-21.webp",
   },
+  "Sakuma Jirou": {
+    playerId: null,
+    title: "Sakuma Jirou · Artillero Imperial ★3",
+    summary: "Nuevo delantero de Bosque que llegará tras el mantenimiento del 1 de septiembre. Su repertorio incluye Pingüino emperador n.º 2 y un regate de Fuego de 165 de poder.",
+    details: ["FW · Bosque · ★★★", "Pingüino emperador n.º 2", "Regate de Fuego · poder 165", "Tras el mantenimiento del 1 SEP"],
+    image: "/news/official-35747.jpg",
+  },
 };
 
 const featuredGachaSourceNames = {
@@ -71,6 +80,7 @@ const featuredGachaSourceNames = {
   "35665": "Otonashi Haruna",
   "35522": "Raimon Natsumi",
   "35669": "Raimon Natsumi",
+  "35747": "Sakuma Jirou",
 };
 
 const activeGachaPlayerIds = {
@@ -296,11 +306,12 @@ function spanishCard(item) {
   if (item.title.includes("ピックアップガチャ") || item.title.includes("ガチャ")) {
     const featured = featuredGachaSourceNames[item.sourceId] ?? names[0];
     const profile = featuredGachaProfiles[featured];
+    const isPreview = item.title.includes("予告");
     return {
       ...common,
       id: `${featured ? slugify(featured) : "nuevo"}-gacha-${item.sourceId}`,
       playerId: profile?.playerId ?? null,
-      label: "GACHA ACTIVO",
+      label: isPreview ? "PRÓXIMO GACHA" : "GACHA ACTIVO",
       title: profile?.title ?? (featured ? `${featured} · Gacha destacado` : "Gacha destacado"),
       summary: profile?.summary ?? (featured
         ? `Gacha activo protagonizado por ${featured}${startsAt ? ` desde el ${writtenAvailability}` : ""}.`
@@ -359,15 +370,9 @@ function spanishCard(item) {
     };
   }
 
-  return {
-    ...common,
-    id: `novedad-oficial-${item.sourceId}`,
-    label: "NOVEDAD",
-    title: "Nueva información del juego",
-    summary: "Se ha publicado nueva información oficial de Inazuma Eleven Cross.",
-    details: ["Anuncio oficial", "Información del juego"],
-    imageUrl: item.imageUrl,
-  };
+  // Una tarjeta sin contexto perjudica más de lo que ayuda: no se publica hasta
+  // que el sincronizador pueda extraer un título, resumen e imagen útiles.
+  return null;
 }
 
 function spanishCards(item) {
@@ -413,6 +418,32 @@ function spanishCards(item) {
     ];
   }
 
+  if (item.sourceId === "35744") {
+    return [{
+      ...common,
+      sourceId: `${item.source}-${item.sourceId}`,
+      id: `mantenimiento-1-septiembre-${item.sourceId}`,
+      label: "MANTENIMIENTO",
+      title: "Versión 1.3.0 · mantenimiento",
+      summary: "El mantenimiento del 1 de septiembre preparará la versión 1.3.0, el cambio de temporada, la integración parcial de mundos, correcciones y una actualización de datos.",
+      details: ["04:55–10:00 JST", "Versión 1.3.0", "Cambio de temporada", "Integración de mundos"],
+      image: "/news/version-1-3-0-overview.jpg",
+    }];
+  }
+
+  if (item.sourceId === "35751") {
+    return [{
+      ...common,
+      sourceId: `${item.source}-${item.sourceId}`,
+      id: `correccion-pasivas-${item.sourceId}`,
+      label: "CORRECCIÓN",
+      title: "Diez pasivas se corregirán el 1 de septiembre",
+      summary: "El juego alineará el texto y el efecto real de diez pasivas afectadas; entre ellas las de Ootani Tsukushi, Nishigaki Mamoru y Onigawara Gengorou. También se estudia una compensación.",
+      details: ["10 jugadores afectados", "Texto y efecto corregidos", "Compensación en estudio"],
+      image: "/news/version-1-3-0-overview.jpg",
+    }];
+  }
+
   if (item.title.includes("ワールド") && item.title.includes("統合")) {
     return [{
       ...common,
@@ -422,11 +453,12 @@ function spanishCards(item) {
       title: "Integración parcial de mundos",
       summary: "Algunos mundos compartirán clubes, emparejamientos, rankings y chat para reunir a más jugadores.",
       details: ["Clubes compartidos", "Emparejamiento ampliado", "Rankings y chat mundial"],
-      image: "/brand/ie-cross-database-logo.png",
+      image: "/news/version-1-3-0-overview.jpg",
     }];
   }
 
-  return [spanishCard(item)];
+  const card = spanishCard(item);
+  return card ? [card] : [];
 }
 
 function localizedTime(target, { city, timeZone, label }) {
@@ -519,6 +551,7 @@ function buildCalendar(items, cards, now) {
   });
   const eventCard = event ? cards.find((card) => card.sourceId === `${event.source}-${event.sourceId}`) : null;
   const updateCard = cards.find((card) => card.sourceId === `${update.item.source}-${update.item.sourceId}`);
+  const sakumaCard = cards.find((card) => card.sourceId === "official-35747");
   const version130Card = cards.find((card) => card.id.startsWith("version-1-3-0-"));
   const isVersion130Update = update.item.sourceId === "35728" && Boolean(version130Card);
   const targetParts = new Intl.DateTimeFormat("en-GB", {
@@ -537,17 +570,19 @@ function buildCalendar(items, cards, now) {
     dateLabel: `${part("day")} ${monthNames[Number(part("month")) - 1]} ${part("year")}`,
     timeLabel: `${part("hour")}:${part("minute")} JST${update.estimated ? " · estimada" : ""}`,
     timezones: calendarZones.map((zone) => localizedTime(update.target, zone)),
-    title: isVersion130Update ? "Actualización 1.3.0" : updateCard?.title ?? eventCard?.title ?? "Próxima actualización",
-    summary: isVersion130Update
+    title: sakumaCard ? "Sakuma Jirou y versión 1.3.0" : isVersion130Update ? "Actualización 1.3.0" : updateCard?.title ?? eventCard?.title ?? "Próxima actualización",
+    summary: sakumaCard
+      ? "El mantenimiento comenzará a las 04:55 JST y está previsto hasta las 10:00 JST. Al terminar llegará el pickup ★3 de Sakuma Jirou junto con la versión 1.3.0, el cambio de temporada y la integración parcial de mundos."
+      : isVersion130Update
       ? "La versión 1.3.0 añadirá las fases 481–800 al Cross Simulator, elevará el nivel máximo de 340 a 440, permitirá guardar cinco formaciones e integrará parcialmente algunos mundos. La hora oficial aún no se ha anunciado; 05:00 JST es una estimación basada en el horario habitual."
       : updateCard
-      ? `${updateCard.summary} La hora oficial aún no se ha anunciado; 05:00 JST es una estimación basada en el horario habitual.`
+      ? `${updateCard.summary}${update.estimated ? " La hora oficial aún no se ha anunciado; 05:00 JST es una estimación basada en el horario habitual." : ""}`
       : eventCard
       ? `La actualización de datos dará paso al ${eventCard.title}.`
       : "Hay una nueva actualización de datos anunciada para el juego.",
-    image: isVersion130Update ? "/news/version-1-3-0-overview.jpg" : updateCard?.image ?? "/brand/ie-cross-database-logo.png",
-    imageUrl: isVersion130Update ? null : updateCard?.imageUrl ?? eventCard?.imageUrl ?? null,
-    imageSourceId: isVersion130Update ? "version-1-3-0-overview" : updateCard?.sourceId ?? eventCard?.sourceId ?? `calendar-${update.item.sourceId}`,
+    image: sakumaCard?.image ?? (isVersion130Update ? "/news/version-1-3-0-overview.jpg" : updateCard?.image ?? "/brand/ie-cross-database-logo.png"),
+    imageUrl: sakumaCard ? null : isVersion130Update ? null : updateCard?.imageUrl ?? eventCard?.imageUrl ?? null,
+    imageSourceId: sakumaCard?.sourceId ?? (isVersion130Update ? "version-1-3-0-overview" : updateCard?.sourceId ?? eventCard?.sourceId ?? `calendar-${update.item.sourceId}`),
   };
 }
 
@@ -626,15 +661,5 @@ if (nextContents === previousContents) {
 }
 
 await writeFile(newsPath, nextContents, "utf8");
-const referencedAssets = new Set([
-  ...cards.map((item) => path.basename(item.image)),
-  ...activeBanners.map((item) => path.basename(item.image)),
-  nextNews.nextUpdate ? path.basename(nextNews.nextUpdate.image) : null,
-].filter(Boolean));
-for (const filename of await readdir(mediaDirectory)) {
-  if (/^official-[a-z0-9-]+\.(?:jpe?g|png|webp)$/i.test(filename) && !referencedAssets.has(filename)) {
-    await unlink(path.join(mediaDirectory, filename)).catch(() => undefined);
-  }
-}
 
 console.log(`Portada actualizada con ${cards.length} novedades y ${activeBanners.length} banners activos. Próxima actualización: ${nextNews.nextUpdate?.dateLabel ?? "sin fecha anunciada"}.`);
