@@ -65,10 +65,10 @@ const featuredGachaProfiles = {
     image: "/news/x-raimon-natsumi-gacha-2026-08-21.webp",
   },
   "Sakuma Jirou": {
-    playerId: null,
+    playerId: "3016",
     title: "Sakuma Jirou · Artillero Imperial ★3",
-    summary: "Nuevo delantero de Bosque que llegará tras el mantenimiento del 1 de septiembre. Su repertorio incluye Pingüino emperador n.º 2 y un regate de Fuego de 165 de poder.",
-    details: ["FW · Bosque · ★★★", "Pingüino emperador n.º 2", "Regate de Fuego · poder 165", "Tras el mantenimiento del 1 SEP"],
+    summary: "Nuevo delantero de Bosque disponible desde la actualización 1.3.0. Su repertorio incluye Pingüino emperador n.º 2 y Avance flamígero.",
+    details: ["FW · Bosque · ★★★", "Pingüino emperador n.º 2", "Avance flamígero · poder 165", "Disponible desde el 1 SEP"],
     image: "/news/official-35747.jpg",
   },
 };
@@ -81,6 +81,7 @@ const featuredGachaSourceNames = {
   "35522": "Raimon Natsumi",
   "35669": "Raimon Natsumi",
   "35747": "Sakuma Jirou",
+  "35612": "Sakuma Jirou",
 };
 
 const activeGachaPlayerIds = {
@@ -89,6 +90,8 @@ const activeGachaPlayerIds = {
   "35522": "1168",
   "35438": "4003",
   "35436": "4009",
+  "35747": "3016",
+  "35612": "3016",
 };
 
 function decodeXml(value = "") {
@@ -418,6 +421,19 @@ function spanishCards(item) {
     ];
   }
 
+  if (item.sourceId === "35614") {
+    return [{
+      ...common,
+      sourceId: `${item.source}-${item.sourceId}`,
+      id: `gacha-otono-3-garantizado-${item.sourceId}`,
+      label: "GACHA DE PAGO",
+      title: "Gacha Otoño ★3 garantizado",
+      summary: "Gacha limitado a cuatro tiradas de diez: cada una cuesta 3.000 Diamantes Balón de pago e incluye un jugador ★3 garantizado.",
+      details: ["10 resultados", "1 jugador ★3 garantizado", "Máximo 4 tiradas", "Hasta el 13 OCT · 04:59 JST"],
+      imageUrl: item.imageUrl,
+    }];
+  }
+
   if (item.sourceId === "35744") {
     return [{
       ...common,
@@ -604,8 +620,14 @@ const officialItems = officialFeed?.items.filter((item) =>
 ) ?? [];
 const aimingItems = aimingFeed?.items.filter((item) => item.categories.includes("イナズマイレブン クロス")) ?? [];
 const relevantItems = officialItems.length >= 2 ? officialItems : [...officialItems, ...aimingItems];
+const activeFeaturedNames = new Set(
+  relevantItems
+    .filter((item) => item.title.includes("ピックアップガチャ") && !item.title.includes("予告"))
+    .flatMap((item) => namesIn(`${item.title} ${plainText(item.content)}`)),
+);
 const latestItems = relevantItems
   .filter((item) => !item.title.includes("終了"))
+  .filter((item) => !(item.title.includes("予告") && namesIn(`${item.title} ${plainText(item.content)}`).some((name) => activeFeaturedNames.has(name))))
   .sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime())
   .slice(0, 8);
 
